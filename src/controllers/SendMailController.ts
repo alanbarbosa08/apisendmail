@@ -4,7 +4,7 @@ import { resolve } from "path";
 import { SurveysRepository } from "../repositories/SurveysRepository";
 import { SurveysUsersRepository } from "../repositories/SurveysUsersRepository";
 import { UsersRepository } from "../repositories/UserRepository";
-import SendMailService from "../services/SendMailService";
+import  SendMailService  from "../services/SendMailService";
 //import { SurveysUsersRepository } from "../repositories/SurveysUsersRepository";
 class SendMailController {
     async execute(request: Request, response: Response){
