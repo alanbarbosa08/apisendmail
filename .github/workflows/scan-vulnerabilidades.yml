@@ -24,7 +24,7 @@ jobs:
           scan-type: 'fs'
           format: 'sarif' # Muda o formato de texto para SARIF
           output: 'trivy-results.sarif' # Nome do arquivo de saída
-          severity: 'CRITICAL,HIGH'
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN'
 
       - name: Upload do resultado para o GitHub Security
         uses: github/codeql-action/upload-sarif@v3
