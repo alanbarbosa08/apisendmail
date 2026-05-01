@@ -7,7 +7,7 @@ name: Scan de Vulnerabilidades (Trivy)
 # Sem isso, o arquivo ficaria parado lá e nunca seria executado sozinho.
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 # 3. O TRABALHO (O QUE VAI SER FEITO?)
 jobs:
