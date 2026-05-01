@@ -1,47 +1,33 @@
-# 1. O NOME DO SEU PROCESSO
-# Serve para você identificar qual automação está rodando na aba "Actions".
-name: Scan de Vulnerabilidades (Trivy)
+name: Security-Scan-Visual
 
-# 2. O GATILHO (O QUE FAZ O ROBÔ ACORDAR?)
-# O 'on: [push]' diz: "GitHub, toda vez que eu enviar código (push), execute isso".
-# Sem isso, o arquivo ficaria parado lá e nunca seria executado sozinho.
 on:
   push:
-    branches: [ "master" ]
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
 
-# 3. O TRABALHO (O QUE VAI SER FEITO?)
 jobs:
-  security-scan:
-    # AQUI ESTÁ O SEU "UBUNTU-LATEST":
-    # Por que isso? Como o GitHub não tem acesso ao seu computador pessoal, 
-    # ele precisa ligar uma máquina própria dele para rodar os seus testes.
-    # Ele usa Linux Ubuntu por ser leve e grátis. Você não precisa ter Ubuntu 
-    # na sua máquina; o GitHub "empresta" um para você durante o processo.
+  trivy_visual_scan:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write # Permissão crucial para escrever na aba Security
+      actions: read
 
-    # 4. O PASSO A PASSO (A LISTA DE TAREFAS)
     steps:
-      
-      # TAREFA 1: PEGAR O CÓDIGO
-      # A máquina Ubuntu que o GitHub ligou nasce "vazia". 
-      # Este comando (checkout) entra no seu repositório, copia seus arquivos 
-      # e cola dentro dessa máquina temporária para que ela possa lê-los.
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      # TAREFA 2: RODAR O SCANNER
-      # Aqui dizemos: "Nessa máquina Ubuntu, use a ferramenta Trivy".
-      - name: Executar Trivy Scan
+      - name: Rodar Trivy (Gera relatório SARIF)
         uses: aquasecurity/trivy-action@master
         with:
-          # 'fs' significa File System. Ele vai vasculhar todos os seus arquivos.
           scan-type: 'fs'
-          
-          # 'exit-code: 1' é a parte de Segurança (Sec): 
-          # Se o scanner achar um vírus ou falha, ele dá um erro (1).
-          # Isso faz a bolinha ficar VERMELHA para te avisar que algo está errado.
-          exit-code: '1'
-          
-          # Aqui filtramos para ele te avisar apenas de coisas CRÍTICAS ou ALTAS.
-          # Isso evita que você perca tempo com avisos bobos de "informação".
+          format: 'sarif' # Muda o formato de texto para SARIF
+          output: 'trivy-results.sarif' # Nome do arquivo de saída
           severity: 'CRITICAL,HIGH'
+
+      - name: Upload do resultado para o GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() # Garante que o upload aconteça mesmo se encontrar falhas
+        with:
+          sarif_file: 'trivy-results.sarif'
